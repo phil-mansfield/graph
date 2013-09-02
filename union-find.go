@@ -19,6 +19,11 @@ func (g *Graph) root(node uint32) uint32 {
 	return groupId
 }
 
+// Union puts all nodes connected by edges to groups and assigns a group ID
+// number to each of them. It also computes the properties of these groups so
+// that Query can access them in the future.
+//
+// IMPLEMENTATION NOTE: This call currently runs in O(N log*(N))
 func (g *Graph) Union() {
 	if g.unionCalled {
 		return
@@ -61,23 +66,31 @@ func (g *Graph) Union() {
 	g.unionCalled = true
 }
 
+// Find returns the ID of the group that the specified node is a member of.
+// Union must be called before Find. Failing to do so will result in an error.
+//
+// IMPLEMENTATION NOTE: This call currently runs in O(log*(N)).
 func (g *Graph) Find(node uint32) uint32 {
 	if !g.unionCalled {
 		panic("You must call Union before Find.")
 	} else if node >= g.nodeCount {
-		panic(fmt.Sprintf("The node %d is larger than the accepted nodeCount.",
-			g.nodeCount))
+		panic(fmt.Sprintf("The node %d is larger than the accepted " +
+			"nodeCount.", g.nodeCount))
 	}
 
 	return g.root(node)
 }
 
+// Query returns information about the specified group of nodes. Union must be
+// called before Query. Failing to do so will result in an error.
+//
+// IMPLEMENTATION NOTE: currently the only supported query type is graph.Size.
 func (g *Graph) Query(qt QueryType, groupId uint32) int {
 	if !g.unionCalled {
-		panic("You must call Union before Find.")
+		panic("You must call Union before Query.")
 	} else if groupId >= g.nodeCount {
-		panic(fmt.Sprintf("The node %d is larger than the accepted nodeCount.",
-			g.nodeCount))
+		panic(fmt.Sprintf("The node %d is larger than the accepted " + 
+			"nodeCount.", g.nodeCount))
 	}
 
 	switch(qt) {

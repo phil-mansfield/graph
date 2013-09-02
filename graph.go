@@ -14,19 +14,20 @@ const (
 	Height
 )
 
+// Graph is the underlying datatype used for union-find operations.
 type Graph struct {
 	us, vs, ids, sizes, lefts, rights, tops, bottoms []uint32
 	nodeCount, largestGroup uint32
 	unionCalled bool
 }
 
-// New creates a new graph consisting of the specified unweighted and 
+// New creates a new Graph consisting of the specified unweighted and 
 // undirected edges. The ith edge is considered to be the pair (u, v) = 
 // (us[i], vs[i]). It is assumed that for all edges, u, v < nodeCount.
 func New(nodeCount uint32, us, vs []uint32) *Graph {
 	if len(us) != len(vs) {
-		panic(fmt.Sprintf("Length of 'us' and 'vs' must be the same, but are" +
-			" (%d, %d).", len(us), len(vs)))
+		panic(fmt.Sprintf("Length of 'us' and 'vs' must be the same, " +
+			"but are (%d, %d).", len(us), len(vs)))
 	}
 
 	g := new(Graph)
@@ -48,5 +49,8 @@ func New(nodeCount uint32, us, vs []uint32) *Graph {
 	return g
 }
 
+// NodeCount returns the number of distinct nodes in g.
 func (g *Graph) NodeCount() uint32 { return g.nodeCount }
+
+// LargestGroup returns the ID of the largest group in g.
 func (g *Graph) LargestGroup() uint32 { return g.largestGroup }
