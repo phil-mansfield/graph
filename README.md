@@ -56,3 +56,9 @@ and `log*(N)` is the number of times one can take the
 logarithm of `N` before reaching 1 or less. `log*(N)` is less than 5 for any
 `N` with less than 20,000 digits, so it is safe to treat these as constant
 factors for all sane purposes.
+
+Not all aspects are optimized as fully as they could be, but since this 
+library is intended for monte carlo simulations (meaning that there has to
+be at least one call to a random number generator per edge in the graph),
+hyper-optimizing these routines is of limited utility. In its current form
+`Union` will run in less than half the time it takes to generate every edge.
