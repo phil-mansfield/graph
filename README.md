@@ -3,7 +3,7 @@ graph
 
 `graph` is a small optimized union-find graph library. It is designed for use
 in monte-carlo simulations. Additional documentation can be found at 
-<http://godoc.org/github.com/phil-mansfield/graph>.
+<http://godoc.org/github.com/phil-mansfield/graph>
 
 Functionality
 -------------
