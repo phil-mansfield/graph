@@ -4,7 +4,10 @@ import (
 	"fmt"
 )
 
-func (g *Graph) root(node uint32) uint32 {
+// root returns the ID of the group at the specified node. After traversing
+// down a branch of a tree it traverses back up so that all nodes along the
+// path "remember" what the root was.
+func (g *Graph) root(node int) int {
 	groupId := node
 	for g.ids[groupId] != groupId {
 		groupId = g.ids[groupId]
@@ -23,17 +26,14 @@ func (g *Graph) root(node uint32) uint32 {
 // number to each of them. It also computes the properties of these groups so
 // that Query can access them in the future.
 //
-// IMPLEMENTATION NOTE: This call currently runs in O(N log*(N))
+// IMPLEMENTATION NOTE: This call currently runs in O(N logStar(N))
 func (g *Graph) Union() {
 	if g.unionCalled {
 		return
 	}
 
-	g.ids = make([]uint32, g.nodeCount)
-	g.sizes = make([]uint32, g.nodeCount)
-
 	for i := 0; i < len(g.ids); i++ {
-		g.ids[i] = uint32(i)
+		g.ids[i] = i
 		g.sizes[i] = 1
 	}
 
@@ -46,7 +46,7 @@ func (g *Graph) Union() {
 			continue
 		}
 
-		var rootId, leafId uint32
+		var rootId, leafId int
 		if g.sizes[uRoot] > g.sizes[vRoot] {
 			rootId = uRoot
 			leafId = vRoot
@@ -70,7 +70,7 @@ func (g *Graph) Union() {
 // Union must be called before Find. Failing to do so will result in an error.
 //
 // IMPLEMENTATION NOTE: This call currently runs in O(log*(N)).
-func (g *Graph) Find(node uint32) uint32 {
+func (g *Graph) Find(node int) int {
 	if !g.unionCalled {
 		panic("You must call Union before Find.")
 	} else if node >= g.nodeCount {
@@ -81,26 +81,14 @@ func (g *Graph) Find(node uint32) uint32 {
 	return g.root(node)
 }
 
-// Query returns information about the specified group of nodes. Union must be
-// called before Query. Failing to do so will result in an error.
-//
-// IMPLEMENTATION NOTE: currently the only supported query type is graph.Size.
-func (g *Graph) Query(qt QueryType, groupId uint32) int {
-	if !g.unionCalled {
-		panic("You must call Union before Query.")
-	} else if groupId >= g.nodeCount {
-		panic(fmt.Sprintf("The node %d is larger than the accepted " + 
-			"nodeCount.", g.nodeCount))
+func (g *Graph) Roots() []int {
+	// TODO: Appending may be too slow. Benchmaek.
+	roots := []int{}
+	for i := 0; i < len(g.ids); i++ {
+		if g.ids[i] == i {
+			roots = append(roots, i)
+		}
 	}
 
-	switch(qt) {
-	case Size:
-		return int(g.sizes[groupId])
-	case Height:
-		panic("Not yet implemented.")
-	case Width:
-		panic("Not yet implemented.")
-	}
-
-	panic("Unrecognized QueryType.")
+	return roots
 }

@@ -1,16 +1,18 @@
 package graph
 
 import (
+	"math/rand"
+
 	"testing"
 )
 
 func makeSmallGraph() *Graph {
-	us := []uint32{1, 1, 3, 7, 9,  8, 2}
-	vs := []uint32{2, 3, 5, 8, 10, 9, 3}
+	us := []int{1, 1, 3, 7, 9,  8, 2}
+	vs := []int{2, 3, 5, 8, 10, 9, 3}
 	return New(11, us, vs)
 }
 
-func inArray(target uint32, xs []uint32) bool {
+func inArray(target int, xs []int) bool {
 	for _, x := range xs {
 		if x == target {
 			return true
@@ -21,20 +23,20 @@ func inArray(target uint32, xs []uint32) bool {
 
 func TestFind(t *testing.T) {
 	tests := []struct {
-		target uint32
-		validIds []uint32
+		target int
+		validIds []int
 	}{
-		{0, []uint32{0}},
-		{1, []uint32{1, 2, 3, 5}},
-		{2, []uint32{1, 2, 3, 5}},
-		{3, []uint32{1, 2, 3, 5}},
-		{4, []uint32{4}},
-		{5, []uint32{1, 2, 3, 5}},
-		{6, []uint32{6}},
-		{7, []uint32{7, 8, 9, 10}},
-		{8, []uint32{7, 8, 9, 10}},
-		{9, []uint32{7, 8, 9, 10}},
-		{10, []uint32{7, 8, 9, 10}},
+		{0, []int{0}},
+		{1, []int{1, 2, 3, 5}},
+		{2, []int{1, 2, 3, 5}},
+		{3, []int{1, 2, 3, 5}},
+		{4, []int{4}},
+		{5, []int{1, 2, 3, 5}},
+		{6, []int{6}},
+		{7, []int{7, 8, 9, 10}},
+		{8, []int{7, 8, 9, 10}},
+		{9, []int{7, 8, 9, 10}},
+		{10, []int{7, 8, 9, 10}},
 	}
 
 	g := makeSmallGraph()
@@ -58,12 +60,25 @@ func TestFind(t *testing.T) {
 	}
 }
 
-func TestLargestGroup(t *testing.T) {
-	g := makeSmallGraph()
-	g.Union()
+func BenchmarkUnion(b *testing.B) {
+	nodes := 256 * 256 * 256
+	us := make([]int, nodes * 3)
+	vs := make([]int, nodes * 3)
+	
+	for i := range us {
+		u := rand.Intn(nodes)
+		v := (u + rand.Intn(15)) % nodes
+		us[i], vs[i] = u, v
+	}
 
-	if g.Query(Size, g.LargestGroup()) != 4 {
-		t.Errorf("Graph's largest group should have size 4 but has size %d.",
-			g.Query(Size, g.LargestGroup()))
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		g := New(nodes, us, vs)
+		g.Union()
+
+		for j := 0; j < nodes; j++ {
+			g.Find(j)
+		}
 	}
 }
